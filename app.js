@@ -34,7 +34,7 @@ var chart1Title = document.getElementById('chart1Title');
 var chart2Title = document.getElementById('chart2Title');
 
 // constructors
-function Product(source, index){
+function Product(source, index) {
   this.source = source;
   this.index = index;
   this.name = source.slice(7, source.length - 4);
@@ -42,82 +42,80 @@ function Product(source, index){
   this.clicks = 0;
   this.lastPresented = 0;
   this.popularity = 0;
-  this.setPopularity = function(){
-    if(this.totalPresented === 0){
-      this.popularity = 0;
-    }else{
-      this.popularity = this.clicks / this.totalPresented;
-    }
-  };
+
 }
 
+function setPopularity(product) {
+  if (product.totalPresented === 0) {
+    product.popularity = 0;
+  } else {
+    product.popularity = product.clicks / product.totalPresented;
+  }
+};
+
+
 // compare functions (for sorting)
-var comparePopular = function(productA, productB){
-  if(productA.popularity > productB.popularity){
+var comparePopular = function(productA, productB) {
+  if (productA.popularity > productB.popularity) {
     return -1;
-  }
-  else if(productA.popularity < productB.popularity){
+  } else if (productA.popularity < productB.popularity) {
     return 1;
-  }
-  else{
-    if(productA.totalPresented > productB.totalPresented){
+  } else {
+    if (productA.totalPresented > productB.totalPresented) {
       return -1;
-    }
-    else if(productA.totalPresented < productB.totalPresented){
+    } else if (productA.totalPresented < productB.totalPresented) {
       return 1;
-    }
-    else return 0;
+    } else return 0;
   }
 };
-var compareClicked = function(productA, productB){
-  if(productA.clicks > productB.clicks){
+var compareClicked = function(productA, productB) {
+  if (productA.clicks > productB.clicks) {
     return -1;
-  }
-  else if(productA.clicks < productB.clicks){
+  } else if (productA.clicks < productB.clicks) {
     return 1;
-  }
-  else{
-    if(productA.totalPresented > productB.totalPresented){
-      return 1;
-    }
-    else if(productA.totalPresented < productB.totalPresented){
+  } else {
+    if (productA.totalPresented > productB.totalPresented) {
       return -1;
-    }
-    else return 0;
+    } else if (productA.totalPresented < productB.totalPresented) {
+      return 1;
+    } else return 0;
   }
 };
-var compareFrequent = function(productA, productB){
-  if(productA.totalPresented > productB.totalPresented){
+var compareFrequent = function(productA, productB) {
+  if (productA.totalPresented > productB.totalPresented) {
     return -1;
-  }
-  else if(productA.totalPresented < productB.totalPresented){
+  } else if (productA.totalPresented < productB.totalPresented) {
     return 1;
-  }
-  else{
-    if(productA.clicks > productB.clicks){
+  } else {
+    if (productA.clicks > productB.clicks) {
       return -1;
-    }
-    else if(productA.clicks < productB.clicks){
+    } else if (productA.clicks < productB.clicks) {
       return 1;
-    }
-    else return 0;
+    } else return 0;
   }
 };
-var compareDefault = function(){
+var compareDefault = function() {
   return 0;
 };
 
 // chart display functions
-function prepChart(){
+function prepChart() {
   for (var i = 0; i < products.length; i++) {
-    products[i].setPopularity();
+    if (storedArray) {
+      setPopularity(storedArray[i]);
+    } else {
+      setPopularity(products[i]);
+    }
   }
+  var storedStringArray = localStorage.getItem('products');
+  var storedArray = JSON.parse(storedStringArray);
 }
-function sortChart(){
+
+function sortChart() {
   var radios = document.getElementsByName('sortButton');
   for (var i = 0; i < radios.length; i++) {
-    if(radios[i].checked){
-      switch(radios[i].value){
+    if (radios[i].checked) {
+      switch (radios[i].value) {
       case 'reliable':
         products.sort(compareDefault);
         break;
@@ -136,72 +134,82 @@ function sortChart(){
     }
   }
 }
-function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors){
+
+function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors) {
   var data = {
-    labels: products.map(function(product) {return product.name;}),
-    datasets: [
-      {
-        label: 'Times Clicked',
-        data: products.map(function(product) {return product.clicks;}),
-        backgroundColor: clickBackgroundColors,
-        hoverBackgroundColor: hoverColors
-      },
-      {
-        label: 'Times Presented',
-        data: products.map(function(product) {return product.totalPresented;}),
-        backgroundColor: presentedBackgroundColors,
-        hoverBackgroundColor: hoverColors
-      }
-    ],
+    labels: products.map(function(product) {
+      return product.name;
+    }),
+    datasets: [{
+      data: products.map(function(product) {
+        return product.clicks;
+      }),
+      backgroundColor: clickBackgroundColors,
+      hoverBackgroundColor: hoverColors
+    }, {
+      data: products.map(function(product) {
+        return product.totalPresented;
+      }),
+      backgroundColor: presentedBackgroundColors,
+      hoverBackgroundColor: hoverColors
+    }],
   };
   var canvas = document.getElementById('canvas1');
   var context = canvas.getContext('2d');
   new Chart(context, {
     type: 'bar',
     data: data,
-    options: {responsive: false},
+    options: {
+      responsive: false
+    },
     scales: [{
       ticks: {
-        beginAtZero:true
+        beginAtZero: true
       }
     }]
   });
   canvas.style.visibility = 'visible';
 }
-function displayChart2(hoverColors, popularityBackgroundColors){
+
+function displayChart2(hoverColors, popularityBackgroundColors) {
   var data = {
-    labels: products.map(function(product) {return product.name;}),
-    datasets: [
-      {
-        label: 'Average Popularity',
-        data: products.map(function(product) {return product.popularity * 100;}),
-        backgroundColor: popularityBackgroundColors,
-        hoverBackgroundColor: hoverColors
-      }
-    ],
+    labels: products.map(function(product) {
+      return product.name;
+    }),
+    datasets: [{
+      data: products.map(function(product) {
+        return product.popularity;
+      }),
+      backgroundColor: popularityBackgroundColors,
+      hoverBackgroundColor: hoverColors
+    }],
   };
   var canvas = document.getElementById('canvas2');
   var context = canvas.getContext('2d');
   new Chart(context, {
     type: 'bar',
     data: data,
-    options: {responsive: false},
+    options: {
+      responsive: false
+    },
     scales: [{
       ticks: {
-        beginAtZero:true
+        beginAtZero: true
       }
     }]
   });
   canvas.style.visibility = 'visible';
 }
-function hideCharts(){
+
+function hideCharts() {
   canvas1.style.visibility = 'hidden';
   canvas2.style.visibility = 'hidden';
   chartForm.style.visibility = 'hidden';
   chart1Title.style.visibility = 'hidden';
   chart2Title.style.visibility = 'hidden';
 }
-function showCharts(){
+
+function showCharts() {
   canvas1.style.visibility = 'visible';
   canvas2.style.visibility = 'visible';
   chartForm.style.visibility = 'visible';
@@ -210,7 +218,7 @@ function showCharts(){
 }
 
 // other functions
-function generateImages(){
+function generateImages() {
   for (var i = 0; i < inUse.length; i++) {
     var img = document.getElementById('img' + (i + 1));
     var srcAtt = document.createAttribute('src');
@@ -221,32 +229,34 @@ function generateImages(){
     img.setAttributeNode(altAtt);
   }
 }
-function populateInUseArray(){
+
+function populateInUseArray() {
   var skipArr = [];
   turnNumber += 1;
   for (var i = 0; i < inUse.length; i++) {
     var rand = generateRand(skipArr);
     skipArr.push(rand);
-    if(products[rand].lastPresented >= (turnNumber - 1) && turnNumber > 1){
+    if (products[rand].lastPresented >= (turnNumber - 1) && turnNumber > 1) {
       i -= 1;
-    }
-    else{
+    } else {
       products[rand].totalPresented += 1;
       products[rand].lastPresented = turnNumber;
       inUse[i] = products[rand];
     }
   }
 }
-function generateRand(skipArr){
+
+function generateRand(skipArr) {
   var rand = Math.floor(Math.random() * (products.length - skipArr.length));
   for (var i = 0; i < skipArr.length; i++) {
-    if(rand >= skipArr[i]){
+    if (rand >= skipArr[i]) {
       rand += 1;
     }
   }
   return rand;
 };
-function showResults(){
+
+function showResults() {
   var finished = new Product('images/finished.jpg');
   inUse = [finished, finished, finished];
   generateImages();
@@ -262,15 +272,14 @@ function showResults(){
 }
 
 // event handlers
-function handleImageClick(event){
+function handleImageClick(event) {
   var clickedProduct = inUse[event.target.id.slice(3, 4) - 1];
   clickedProduct.clicks += 1;
-  if(turnNumber >= 25){
+  if (turnNumber >= 25) {
     handleSubmitButtonClick();
     showResults();
     body.removeEventListener('click', handleImageClick);
-  }
-  else{
+  } else {
     populateInUseArray();
     generateImages();
     console.log(clickedProduct.name + ' ' + clickedProduct.clicks + '/' + clickedProduct.totalPresented);
@@ -278,7 +287,14 @@ function handleImageClick(event){
     console.log(event.target.id);
   }
 }
-function handleSubmitButtonClick(){
+
+function storedData() {
+  var productsString = JSON.stringify(products);
+  localStorage.setItem('products', productsString);
+}
+
+
+function handleSubmitButtonClick() {
   prepChart();
   sortChart();
   var clickBackgroundColors = [];
@@ -293,6 +309,7 @@ function handleSubmitButtonClick(){
   }
   displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors);
   displayChart2(hoverColors, popularityBackgroundColors);
+  storedData();
 }
 
 // run script
