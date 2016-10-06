@@ -24,3 +24,7 @@ p#message {
 form {
   float: right;
 }
+
+form, h2, canvas {
+  visibility: collapse;
+}
