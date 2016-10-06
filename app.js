@@ -27,11 +27,13 @@ var inUse = [{}, {}, {}];
 var turnNumber = 0;
 var section = document.getElementById('imgs');
 var submitButton = document.getElementById('submitButton');
+var resetStoredDataButton = document.getElementById('resetStoredDataButton');
 var canvas1 = document.getElementById('canvas1');
 var canvas2 = document.getElementById('canvas2');
 var chartForm = document.getElementById('chartForm');
 var chart1Title = document.getElementById('chart1Title');
 var chart2Title = document.getElementById('chart2Title');
+var radios = document.getElementsByName('sortButton');
 
 // constructors
 function Product(source, index){
@@ -42,84 +44,87 @@ function Product(source, index){
   this.clicks = 0;
   this.lastPresented = 0;
   this.popularity = 0;
-  this.setPopularity = function(){
-    if(this.totalPresented === 0){
-      this.popularity = 0;
-    }else{
-      this.popularity = this.clicks / this.totalPresented;
-    }
-  };
+  this.reliability = 0;
 }
 
+
 // compare functions (for sorting)
-var comparePopular = function(productA, productB){
-  if(productA.popularity > productB.popularity){
+var compareReliable = function(productA, productB){
+  if (productA.reliability > productB.reliability) {
     return -1;
   }
-  else if(productA.popularity < productB.popularity){
+  else if (productA.reliability < productB.reliability) {
     return 1;
   }
-  else{
-    if(productA.totalPresented > productB.totalPresented){
+  else return 0;
+};
+var comparePopular = function(productA, productB){
+  if (productA.popularity > productB.popularity) {
+    return -1;
+  }
+  else if (productA.popularity < productB.popularity) {
+    return 1;
+  }
+  else {
+    if (productA.totalPresented > productB.totalPresented) {
       return -1;
     }
-    else if(productA.totalPresented < productB.totalPresented){
+    else if (productA.totalPresented < productB.totalPresented) {
       return 1;
     }
     else return 0;
   }
 };
 var compareClicked = function(productA, productB){
-  if(productA.clicks > productB.clicks){
+  if (productA.clicks > productB.clicks) {
     return -1;
   }
-  else if(productA.clicks < productB.clicks){
+  else if (productA.clicks < productB.clicks) {
     return 1;
   }
-  else{
-    if(productA.totalPresented > productB.totalPresented){
+  else {
+    if (productA.totalPresented > productB.totalPresented) {
       return -1;
     }
-    else if(productA.totalPresented < productB.totalPresented){
+    else if (productA.totalPresented < productB.totalPresented) {
       return 1;
     }
     else return 0;
   }
 };
 var compareFrequent = function(productA, productB){
-  if(productA.totalPresented > productB.totalPresented){
+  if (productA.totalPresented > productB.totalPresented) {
     return -1;
   }
-  else if(productA.totalPresented < productB.totalPresented){
+  else if (productA.totalPresented < productB.totalPresented) {
     return 1;
   }
-  else{
-    if(productA.clicks > productB.clicks){
+  else {
+    if (productA.clicks > productB.clicks) {
       return -1;
     }
-    else if(productA.clicks < productB.clicks){
+    else if (productA.clicks < productB.clicks) {
       return 1;
     }
     else return 0;
   }
 };
-var compareDefault = function(){
-  return 0;
+var compareAlphabetical = function(productA, productB){
+  return productA.name.localCompare(productB.name);
 };
 
 // chart display functions
 function prepChart(){
   for (var i = 0; i < products.length; i++) {
-    products[i].setPopularity();
+    setReliability(products[i]);
   }
 }
 function sortChart(){
-  var radios = document.getElementsByName('sortButton');
   for (var i = 0; i < radios.length; i++) {
-    if(radios[i].checked){
-      switch(radios[i].value){
+    if (radios[i].checked) {
+      switch (radios[i].value) {
       case 'reliable':
-        products.sort(compareDefault);
+        products.sort(compareReliable);
         break;
       case 'clicked':
         products.sort(compareClicked);
@@ -131,82 +136,105 @@ function sortChart(){
         products.sort(comparePopular);
         break;
       default:
+        products.sort(compareAlphabetical);
         break;
       }
     }
   }
 }
-function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors){
+function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors) {
   var data = {
-    labels: products.map(function(product) {return product.name;}),
-    datasets: [
-      {
-        data: products.map(function(product) {return product.clicks;}),
-        backgroundColor: clickBackgroundColors,
-        hoverBackgroundColor: hoverColors
-      },
-      {
-        data: products.map(function(product) {return product.totalPresented;}),
-        backgroundColor: presentedBackgroundColors,
-        hoverBackgroundColor: hoverColors
-      }
-    ],
+    labels: products.map(function(product) {
+      return product.name;
+    }),
+    datasets: [{
+      data: products.map(function(product) {
+        return product.clicks;
+      }),
+      backgroundColor: clickBackgroundColors,
+      hoverBackgroundColor: hoverColors
+    }, {
+      data: products.map(function(product) {
+        return product.totalPresented;
+      }),
+      backgroundColor: presentedBackgroundColors,
+      hoverBackgroundColor: hoverColors
+    }],
   };
   var canvas = document.getElementById('canvas1');
   var context = canvas.getContext('2d');
   new Chart(context, {
     type: 'bar',
     data: data,
-    options: {responsive: false},
+    options: {
+      responsive: false
+    },
     scales: [{
       ticks: {
-        beginAtZero:true
+        beginAtZero: true
       }
     }]
   });
   canvas.style.visibility = 'visible';
 }
-function displayChart2(hoverColors, popularityBackgroundColors){
+function displayChart2(hoverColors, popularityBackgroundColors) {
   var data = {
-    labels: products.map(function(product) {return product.name;}),
-    datasets: [
-      {
-        data: products.map(function(product) {return product.popularity;}),
-        backgroundColor: popularityBackgroundColors,
-        hoverBackgroundColor: hoverColors
-      }
-    ],
+    labels: products.map(function(product) {
+      return product.name;
+    }),
+    datasets: [{
+      data: products.map(function(product) {
+        return product.popularity;
+      }),
+      backgroundColor: popularityBackgroundColors,
+      hoverBackgroundColor: hoverColors
+    }],
   };
   var canvas = document.getElementById('canvas2');
   var context = canvas.getContext('2d');
   new Chart(context, {
     type: 'bar',
     data: data,
-    options: {responsive: false},
+    options: {
+      responsive: false,
+    },
     scales: [{
       ticks: {
-        beginAtZero:true
+        beginAtZero: true
       }
     }]
   });
   canvas.style.visibility = 'visible';
 }
-function hideCharts(){
-  canvas1.style.visibility = 'hidden';
-  canvas2.style.visibility = 'hidden';
-  chartForm.style.visibility = 'hidden';
-  chart1Title.style.visibility = 'hidden';
-  chart2Title.style.visibility = 'hidden';
-}
-function showCharts(){
-  canvas1.style.visibility = 'visible';
-  canvas2.style.visibility = 'visible';
-  chartForm.style.visibility = 'visible';
-  chart1Title.style.visibility = 'visible';
-  chart2Title.style.visibility = 'visible';
+function displayCharts(){
+  prepChart();
+  sortChart();
+  var clickBackgroundColors = [];
+  var presentedBackgroundColors = [];
+  var popularityBackgroundColors = [];
+  var hoverColors = [];
+  for (var i = 0; i < products.length; i++) {
+    clickBackgroundColors[i] = '#ff0000';
+    presentedBackgroundColors[i] = '#0000ff';
+    popularityBackgroundColors[i] = '#999999';
+    hoverColors[i] = '#9900ff';
+  }
+  displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors);
+  displayChart2(hoverColors, popularityBackgroundColors);
 }
 
 // other functions
+function setPopularity(product){
+  if (product.totalPresented === 0) {
+    product.popularity = 0;
+  } else {
+    product.popularity = (product.clicks / product.totalPresented) * 100;
+  }
+}
+function setReliability(product){
+  setPopularity(product);
+  product.reliability = product.popularity * Math.log(product.totalPresented);
+}
 function generateImages(){
   for (var i = 0; i < inUse.length; i++) {
     var img = document.getElementById('img' + (i + 1));
@@ -224,10 +252,10 @@ function populateInUseArray(){
   for (var i = 0; i < inUse.length; i++) {
     var rand = generateRand(skipArr);
     skipArr.push(rand);
-    if(products[rand].lastPresented >= (turnNumber - 1) && turnNumber > 1){
+    if (products[rand].lastPresented >= (turnNumber - 1) && turnNumber > 1) {
       i -= 1;
     }
-    else{
+    else {
       products[rand].totalPresented += 1;
       products[rand].lastPresented = turnNumber;
       inUse[i] = products[rand];
@@ -237,7 +265,7 @@ function populateInUseArray(){
 function generateRand(skipArr){
   var rand = Math.floor(Math.random() * (products.length - skipArr.length));
   for (var i = 0; i < skipArr.length; i++) {
-    if(rand >= skipArr[i]){
+    if (rand >= skipArr[i]) {
       rand += 1;
     }
   }
@@ -247,27 +275,69 @@ function showResults(){
   var finished = new Product('images/finished.jpg');
   inUse = [finished, finished, finished];
   generateImages();
+  logResults();
   var messageTag = document.getElementById('message');
   messageTag.style.visibility = 'visible';
+  canvas1.style.visibility = 'visible';
+  canvas2.style.visibility = 'visible';
+  chartForm.style.visibility = 'visible';
+  chart1Title.style.visibility = 'visible';
+  chart2Title.style.visibility = 'visible';
+}
+function logResults(){
   var totalsMessage = '';
   for (var i = 0; i < products.length; i++) {
-    totalsMessage += products[i].name + ': ' + products[i].clicks + '/' + products[i].totalPresented + '. (' + products[i].popularity.toFixed(2) + ') | ';
+    totalsMessage += products[i].name + ': ' + products[i].clicks + ', ' + products[i].totalPresented + ', ' + products[i].popularity.toFixed(2) + ', ' + products[i].reliability.toFixed(2) + ' | ';
   }
-  console.log('Survey complete.');
-  console.log('Results: ' + totalsMessage);
-  showCharts();
+  console.log('Sorted by most ' + getRadioValue());
+  console.log('Results [name: clicks, presented,  popularity, reliability]: ' + totalsMessage);
+}
+function getRadioValue(){
+  for (var i = 0; i < radios.length; i++) {
+    if(radios[i].checked){
+      return radios[i].value;
+    }
+  }
+}
+
+// local storage functions
+function storeData(){
+  var productsString = JSON.stringify(products);
+  localStorage.setItem('products', productsString);
+}
+function retrieveData(){
+  var storedStringArray = localStorage.getItem('products');
+  if(storedStringArray){
+    var storedArray = JSON.parse(storedStringArray);
+    products = storedArray;
+    for (var i = 0; i < products.length; i++) {
+      products[i].lastPresented = 0;
+    }
+  }
+  else{
+    for (var j = 0; j < products.length; j++) {
+      products[j].index = j;
+    }
+  }
+}
+function resetStoredData(){
+  for (var i = 0; i < products.length; i++) {
+    products[i].totalPresented = 0;
+    products[i].clicks = 0;
+    products[i].lastPresented = 0;
+    products[i].popularity = 0;
+    products[i].reliability = 0;
+  }
 }
 
 // event handlers
 function handleImageClick(event){
   var clickedProduct = inUse[event.target.id.slice(3, 4) - 1];
   clickedProduct.clicks += 1;
-  if(turnNumber >= 25){
+  if (turnNumber >= 25) {
     handleSubmitButtonClick();
-    showResults();
-    body.removeEventListener('click', handleImageClick);
-  }
-  else{
+    section.removeEventListener('click', handleImageClick);
+  } else {
     populateInUseArray();
     generateImages();
     console.log(clickedProduct.name + ' ' + clickedProduct.clicks + '/' + clickedProduct.totalPresented);
@@ -276,28 +346,23 @@ function handleImageClick(event){
   }
 }
 function handleSubmitButtonClick(){
-  prepChart();
-  sortChart();
-  var clickBackgroundColors = [];
-  var presentedBackgroundColors = [];
-  var popularityBackgroundColors = [];
-  var hoverColors = [];
-  for (var i = 0; i < products.length; i++) {
-    clickBackgroundColors[i] = '#ff0000';
-    presentedBackgroundColors[i] = '#0000ff';
-    popularityBackgroundColors[i] = '#999999';
-    hoverColors[i] = '#9900ff';
+  console.log('Survey Complete!');
+  storeData();
+  displayCharts();
+  showResults();
+}
+function handleResetStoredData(){
+  var check = confirm('Are you sure you want to delete previous data?');
+  if(check){
+    console.log('Data Reset');
+    resetStoredData();
   }
-  displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors);
-  displayChart2(hoverColors, popularityBackgroundColors);
 }
 
 // run script
-hideCharts();
-for (var i = 0; i < products.length; i++) {
-  products[i].index = i;
-}
+retrieveData();
 populateInUseArray();
 generateImages();
 section.addEventListener('click', handleImageClick);
 submitButton.addEventListener('click', handleSubmitButtonClick);
+resetStoredDataButton.addEventListener('click', handleResetStoredData);

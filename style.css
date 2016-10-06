@@ -17,14 +17,14 @@ section {
   align-content: space-between;
 }
 
-canvas {
-  visibility: hidden;
-}
-
 p#message {
   visibility: hidden;
 }
 
 form {
   float: right;
+}
+
+form, h2, canvas {
+  visibility: collapse;
 }
