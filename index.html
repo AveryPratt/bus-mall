@@ -7,14 +7,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
   </head>
   <body id="body">
+    <header>
+      <div class="title">
+        <h1>Bus</h1>
+        <h2>Mall</h2>
+      </div>
+    </header>
     <section id="imgs">
-      <div class="imgDiv">
+      <div id="imgDiv1" class="imgDiv">
         <img id="img1" />
       </div>
-      <div class="imgDiv">
+      <div id="imgDiv2" class="imgDiv">
         <img id="img2" />
       </div>
-      <div class="imgDiv">
+      <div id="imgDiv3" class="imgDiv">
         <img id="img3" />
       </div>
     </section>
@@ -24,15 +30,14 @@
     <form id="chartForm">
       <fieldset>
         <legend>Sort charts by:</legend>
-        <input type="radio" name="sortButton" value="reliable">
+        <input type="radio" name="sortButton" value="reliable" checked="true">
         <label for="sortButton">Most Reliable</label></br>
         <input type="radio" name="sortButton" value="clicked">
         <label for="sortButton">Most Chosen</label></br>
         <input type="radio" name="sortButton" value="frequent">
         <label for="sortButton">Most Often Displayed</label></br>
-        <input type="radio" name="sortButton" value="popular" checked="true">
+        <input type="radio" name="sortButton" value="popular">
         <label for="sortButton" checked="true">Most Popular</label></br>
-        <input id="submitButton" type="button" value="Refresh Charts">
         <input id="resetStoredDataButton" type="button" value="Reset Values">
       </fieldset>
     </form>

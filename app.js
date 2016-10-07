@@ -25,15 +25,18 @@ var products = [
 ];
 var inUse = [{}, {}, {}];
 var turnNumber = 0;
+var chart1;
+var chart2;
+
+// html elements
 var section = document.getElementById('imgs');
-var submitButton = document.getElementById('submitButton');
+var radios = document.getElementsByName('sortButton');
 var resetStoredDataButton = document.getElementById('resetStoredDataButton');
-var canvas1 = document.getElementById('canvas1');
-var canvas2 = document.getElementById('canvas2');
 var chartForm = document.getElementById('chartForm');
 var chart1Title = document.getElementById('chart1Title');
 var chart2Title = document.getElementById('chart2Title');
-var radios = document.getElementsByName('sortButton');
+var canvas1 = document.getElementById('canvas1');
+var canvas2 = document.getElementById('canvas2');
 
 // constructors
 function Product(source, index){
@@ -46,7 +49,6 @@ function Product(source, index){
   this.popularity = 0;
   this.reliability = 0;
 }
-
 
 // compare functions (for sorting)
 var compareReliable = function(productA, productB){
@@ -143,17 +145,22 @@ function sortChart(){
   }
 }
 function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors) {
+  if(chart1){
+    chart1.destroy();
+  }
   var data = {
     labels: products.map(function(product) {
       return product.name;
     }),
     datasets: [{
+      label: 'clicks',
       data: products.map(function(product) {
         return product.clicks;
       }),
       backgroundColor: clickBackgroundColors,
       hoverBackgroundColor: hoverColors
     }, {
+      label: 'times presented',
       data: products.map(function(product) {
         return product.totalPresented;
       }),
@@ -163,7 +170,7 @@ function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundCo
   };
   var canvas = document.getElementById('canvas1');
   var context = canvas.getContext('2d');
-  new Chart(context, {
+  chart1 = new Chart(context, {
     type: 'bar',
     data: data,
     options: {
@@ -178,11 +185,15 @@ function displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundCo
   canvas.style.visibility = 'visible';
 }
 function displayChart2(hoverColors, popularityBackgroundColors) {
+  if(chart2){
+    chart2.destroy();
+  }
   var data = {
     labels: products.map(function(product) {
       return product.name;
     }),
     datasets: [{
+      label: 'popularity',
       data: products.map(function(product) {
         return product.popularity;
       }),
@@ -192,7 +203,7 @@ function displayChart2(hoverColors, popularityBackgroundColors) {
   };
   var canvas = document.getElementById('canvas2');
   var context = canvas.getContext('2d');
-  new Chart(context, {
+  chart2 = new Chart(context, {
     type: 'bar',
     data: data,
     options: {
@@ -233,7 +244,7 @@ function setPopularity(product){
 }
 function setReliability(product){
   setPopularity(product);
-  product.reliability = product.popularity * Math.log(product.totalPresented);
+  product.reliability = product.popularity * Math.log(product.totalPresented + 1);
 }
 function generateImages(){
   for (var i = 0; i < inUse.length; i++) {
@@ -328,6 +339,7 @@ function resetStoredData(){
     products[i].popularity = 0;
     products[i].reliability = 0;
   }
+  storeData();
 }
 
 // event handlers
@@ -335,7 +347,10 @@ function handleImageClick(event){
   var clickedProduct = inUse[event.target.id.slice(3, 4) - 1];
   clickedProduct.clicks += 1;
   if (turnNumber >= 25) {
-    handleSubmitButtonClick();
+    console.log('Survey Complete!');
+    storeData();
+    displayCharts();
+    showResults();
     section.removeEventListener('click', handleImageClick);
   } else {
     populateInUseArray();
@@ -345,17 +360,19 @@ function handleImageClick(event){
     console.log(event.target.id);
   }
 }
-function handleSubmitButtonClick(){
-  console.log('Survey Complete!');
-  storeData();
-  displayCharts();
-  showResults();
-}
-function handleResetStoredData(){
-  var check = confirm('Are you sure you want to delete previous data?');
+function handleFormClick(event){
+  var check = false;
+  if(event.target === resetStoredDataButton){
+    check = confirm('Are you sure you want to delete previous data?');
+    if(check){
+      resetStoredData();
+      console.log('Data Reset.');
+    }
+  }
+  else{check = true;}
   if(check){
-    console.log('Data Reset');
-    resetStoredData();
+    displayCharts();
+    showResults();
   }
 }
 
@@ -364,5 +381,4 @@ retrieveData();
 populateInUseArray();
 generateImages();
 section.addEventListener('click', handleImageClick);
-submitButton.addEventListener('click', handleSubmitButtonClick);
-resetStoredDataButton.addEventListener('click', handleResetStoredData);
+chartForm.addEventListener('click', handleFormClick);
