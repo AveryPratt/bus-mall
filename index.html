@@ -13,6 +13,12 @@
         <h2>Mall</h2>
       </div>
     </header>
+    <section id="intro">
+      <p id="message">
+        Welcome to BusMall's customer interest survey. Please click on the picture below that is most appealing to you. This survey has 25 rounds and your resuts will be shown at the end.
+        <!-- You have completed the survey. Thank you for participating! -->
+      </p>
+    </section>
     <section id="imgs">
       <div id="imgDiv1" class="imgDiv">
         <img id="img1" />
@@ -24,9 +30,6 @@
         <img id="img3" />
       </div>
     </section>
-    <p id="message">
-      You have completed the survey. Thank you for participating!
-    </p>
     <form id="chartForm">
       <fieldset>
         <legend>Sort charts by:</legend>
@@ -41,10 +44,12 @@
         <input id="resetStoredDataButton" type="button" value="Reset Values">
       </fieldset>
     </form>
-    <h2 id="chart1Title">Totals</h2>
-    <canvas id="canvas1" width="900" height="300"></canvas>
-    <h2 id="chart2Title">Popularity</h2>
-    <canvas id="canvas2" width="900" height="300"></canvas>
+    <section id="charts">
+      <h3 class="chartTitle" id="chart1Title">Totals</h3>
+      <canvas id="canvas1" width="900" height="300"></canvas>
+      <h3 class="chartTitle" id="chart2Title">Popularity</h3>
+      <canvas id="canvas2" width="900" height="300"></canvas>
+    </section>
     <script src="app.js" type="text/javascript"></script>
   </body>
 </html>
