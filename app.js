@@ -29,6 +29,7 @@ var chart1;
 var chart2;
 
 // html elements
+var intro = document.getElementById('intro');
 var section = document.getElementById('imgs');
 var radios = document.getElementsByName('sortButton');
 var resetStoredDataButton = document.getElementById('resetStoredDataButton');
@@ -227,8 +228,8 @@ function displayCharts(){
   for (var i = 0; i < products.length; i++) {
     clickBackgroundColors[i] = '#ff0000';
     presentedBackgroundColors[i] = '#0000ff';
-    popularityBackgroundColors[i] = '#999999';
-    hoverColors[i] = '#9900ff';
+    popularityBackgroundColors[i] = '#9900ff'; //#339933
+    hoverColors[i] = '#333333'; //#9900ff
   }
   displayChart1(clickBackgroundColors, hoverColors, presentedBackgroundColors);
   displayChart2(hoverColors, popularityBackgroundColors);
@@ -287,8 +288,9 @@ function showResults(){
   inUse = [finished, finished, finished];
   generateImages();
   logResults();
-  var messageTag = document.getElementById('message');
-  messageTag.style.visibility = 'visible';
+  var chartSection = document.getElementById('charts');
+  intro.textContent = 'Thank you for completing the survey! Your results are shown below.';
+  chartSection.style.visibility = 'visible';
   canvas1.style.visibility = 'visible';
   canvas2.style.visibility = 'visible';
   chartForm.style.visibility = 'visible';
@@ -344,7 +346,13 @@ function resetStoredData(){
 
 // event handlers
 function handleImageClick(event){
-  var clickedProduct = inUse[event.target.id.slice(3, 4) - 1];
+  var clickedProduct;
+  if(event.target.id.slice(0, event.target.id.length - 1) === 'imgDiv'){
+    clickedProduct = inUse[event.target.querySelector('img').id.slice(3, 4) - 1];
+  }
+  else{
+    clickedProduct = inUse[event.target.id.slice(3, 4) - 1];
+  }
   clickedProduct.clicks += 1;
   if (turnNumber >= 25) {
     console.log('Survey Complete!');
